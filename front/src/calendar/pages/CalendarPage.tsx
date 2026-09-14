@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { NavBar } from "../components/NavBar";
 import { Calendar, type View } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { addHours } from 'date-fns';
 import { getMessagesES, localizer } from "../../helpers";
-import { CalendarEvent } from '../components/CalendarEvent';
-import { CalendarModal } from '../components/CalendarModal';
+import { CalendarEvent, CalendarModal, NavBar,  FabAddNew } from '../index'
+import { useUiStore, useCalendarStore } from '../../hooks';
+import { addHours } from 'date-fns';
 
-const events = [{
+const dummyEvent = [{
   title: 'Big Meeting',
   notes: "Comprar cosas para la reunión",
   start: new Date(),
@@ -19,79 +18,89 @@ const events = [{
   }
 }];
 
-
 export const CalendarPage = () => {
+  const { openDateModal } = useUiStore();
+  const { events, setActiveEvent} = useCalendarStore(); 
+  // setActiveEvent(dummyEvent)
 
-  // Control explícito de la vista y la fecha
+
+  console.log(events)
+
   const validViews: View[] = ['month', 'week', 'day', 'agenda'];
 
-    
-  const [lastView, setLastView] = useState(() => (localStorage.getItem('lastView') as View | null) ?? 'week');
+  const isValidView = (v: any): boolean => {
+    return validViews.includes(v as View)
+  };
 
-  /**
-   * const [lastView, setLastView] = useState<View>(() => {
-        const saved = localStorage.getItem('lastView');
-        return saved && validViews.includes(saved as View) ? (saved as View) : 'month';
-    });
-   */
-  
+  const storedView = localStorage.getItem('lastView');
+  const [view, setView] = useState<View>(isValidView(storedView) ? (storedView as View) : 'week');
   const [date, setDate] = useState<Date>(new Date());
 
-  const eventStyleGetter = (event: any, start: any, end: any, isSelected: any) => {
-    console.log({ event, start, end, isSelected });
-
+  const eventStyleGetter = (
+    // event: any, start: any, end: any, isSelected: any
+  ) => {
     const style = {
       backgroundColor: '#347CF7',
       borderRadius: '0px',
       opacity: 0.8,
       color: 'white'
     };
-
     return { style };
   };
 
   const onDoubleClick = (event: any) => {
-    console.log({doubleClick: event});
-  }
+    console.log(event)
+    openDateModal();
+  };
 
   const onSelect = (event: any) => {
-    console.log({click: event});
-  }
+    setActiveEvent(event)
+    // console.log({ click: event });
+  };
 
-  const onViewChanged = ( event :any) => {
-    localStorage.setItem('lastView', event );
-    setLastView( event )
-  }
+  const onViewChanged = (nextView: View) => {
+    if (!isValidView(nextView)) {
+      return
+    };
+
+
+    localStorage.setItem('lastView', nextView);
+    setView(nextView);
+  };
 
   return (
     <>
       <NavBar />
-      <CalendarModal/>     
       <Calendar
         culture='es'
         localizer={localizer}
-        events={events}
-        defaultView={lastView}
+        events={events && events.length > 0 ? events: dummyEvent}
+        view={view}                 // vista controlada
         startAccessor="start"
         endAccessor="end"
-        views={['month', 'week', 'day', 'agenda']}
+        views={validViews}
         style={{ height: 'calc(100vh - 80px)' }}
         messages={getMessagesES()}
         eventPropGetter={eventStyleGetter}
-        components={{
-            event: CalendarEvent
-        }}
+        components={{ event: CalendarEvent }}
         onDoubleClickEvent={onDoubleClick}
         onSelectEvent={onSelect}
         onView={onViewChanged}
 
-        // Control de vista y fecha
+        // Control de fecha
         date={date}
-        onNavigate={(nextDate) => {
-          console.log('onNavigate ->', nextDate);
+        onNavigate={(nextDate, nextView) => {
           setDate(nextDate);
+          // Si el navigate trae un cambio de vista, sincronízalo también
+          if (nextView && isValidView(nextView) && nextView !== view) {
+            localStorage.setItem('lastView', nextView);
+            setView(nextView);
+          }
         }}
       />
+
+      <CalendarModal/>
+      <FabAddNew/>
     </>
   );
 };

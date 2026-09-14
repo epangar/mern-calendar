@@ -10,6 +10,7 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import es from 'date-fns/locale/es';
+import { useCalendarStore, useUiStore } from '../../hooks';
 // import { useCalendarStore, useUiStore } from '../../hooks';
 // import { getEnvVariables } from '../../helpers';
 
@@ -34,7 +35,12 @@ const customStyles = {
 
 export const CalendarModal = () => {
 
-    const [isOpen, setIsOpen] = useState<boolean>(true)
+    const {isDateModalOpen, closeDateModal} = useUiStore()
+      const {  activeEvent} = useCalendarStore(); 
+    
+    
+
+    // const [isOpen, setIsOpen] = useState<boolean>(true)
     // const { isDateModalOpen, closeDateModal } = useUiStore();
     // const { activeEvent, startSavingEvent } = useCalendarStore();
 
@@ -59,12 +65,14 @@ export const CalendarModal = () => {
 
     }, [ formValues.title, formSubmitted ])
 
-    // useEffect(() => {
-    //   if ( activeEvent !== null ) {
-    //       setFormValues({ ...activeEvent });
-    //   }    
+    useEffect(() => {
+      if ( activeEvent !== null ) {
+          setFormValues({ ...activeEvent });
+      }    
       
-    // }, [ activeEvent ])
+    }, [ activeEvent ])
+
+    
     
 
 
@@ -75,7 +83,7 @@ export const CalendarModal = () => {
         })
     }
 
-    const onDateChanged = ( event, changing ) => {
+    const onDateChanged = ( event: any, changing: string ) => {
         setFormValues({
             ...formValues,
             [changing]: event
@@ -83,11 +91,15 @@ export const CalendarModal = () => {
     }
 
     const onCloseModal = () => {
-        setIsOpen(false)
-        // closeDateModal();
+        // setIsOpen(false)
+        closeDateModal()
     }
 
-    const onSubmit = async( event ) => {
+    // const onOpenModal = ()=>{
+    //     setIsOpen(true)
+    // }
+
+    const onSubmit = async( event: { preventDefault: () => void; } ) => {
         event.preventDefault();
         setFormSubmitted(true);
 
@@ -114,7 +126,7 @@ export const CalendarModal = () => {
 
   return (
     <Modal
-        isOpen={ isOpen }
+        isOpen={ isDateModalOpen }
         onRequestClose={ onCloseModal }
         style={ customStyles }
         className="modal"
@@ -129,7 +141,7 @@ export const CalendarModal = () => {
                 <label>Fecha y hora inicio</label>
                 <DatePicker 
                     selected={ formValues.start }
-                    onChange={ (event) => onDateChanged(event, 'start') }
+                    onChange={ (event: any) => onDateChanged(event, 'start') }
                     className="form-control"
                     dateFormat="Pp"
                     showTimeSelect
@@ -143,7 +155,7 @@ export const CalendarModal = () => {
                 <DatePicker 
                     minDate={ formValues.start }
                     selected={ formValues.end }
-                    onChange={ (event) => onDateChanged(event, 'end') }
+                    onChange={ (event: any) => onDateChanged(event, 'end') }
                     className="form-control"
                     dateFormat="Pp"
                     showTimeSelect
@@ -192,3 +204,4 @@ export const CalendarModal = () => {
     </Modal>
   )
 }
+Modal.setAppElement('#root');
