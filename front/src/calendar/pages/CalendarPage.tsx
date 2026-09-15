@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Calendar, type View } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { getMessagesES, localizer } from "../../helpers";
-import { CalendarEvent, CalendarModal, NavBar,  FabAddNew } from '../index'
+import { CalendarEvent, CalendarModal, NavBar,  FabAddNew , FabDelete} from '../index'
 import { useUiStore, useCalendarStore } from '../../hooks';
 import { addHours } from 'date-fns';
 
@@ -101,6 +101,7 @@ export const CalendarPage = () => {
 
       <CalendarModal/>
       <FabAddNew/>
+      <FabDelete/>
     </>
   );
 };

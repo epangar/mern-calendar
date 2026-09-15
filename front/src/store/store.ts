@@ -1,10 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-// // import { uiSlice, calendarSlice, authSlice } from './index';
 import { uiSlice, calendarSlice, authSlice } from './';
-// import { authSlice } from './auth/authSlice';
-// import { calendarSlice } from './calendar/calendarSlice';
-// import { uiSlice } from './ui/uiSlice';
-
 
 export const store = configureStore({
     reducer: {

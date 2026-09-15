@@ -36,7 +36,7 @@ const customStyles = {
 export const CalendarModal = () => {
 
     const {isDateModalOpen, closeDateModal} = useUiStore()
-      const {  activeEvent} = useCalendarStore(); 
+    const {  activeEvent, startSavingEvent} = useCalendarStore(); 
     
     
 
@@ -117,9 +117,9 @@ export const CalendarModal = () => {
         console.log(formValues);
 
         // TODO: 
-        // await startSavingEvent( formValues );
-        // closeDateModal();
-        // setFormSubmitted(false);
+        await startSavingEvent( formValues );
+        closeDateModal();
+        setFormSubmitted(false);
     }
 
 
